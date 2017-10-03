@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <Head></Head>
+  <Body>
+  </Body>
+  <script type="module">
+    import jrpc from '/index.js';
+
+    const socket = new WebSocket('ws://localhost:4000');
+
+    var rpc = jrpc(socket,{});
+
+    // Connection opened
+    socket.addEventListener('open', function (event) {
+        socket.send('Hello Server!');
+    });
+
+    // Listen for messages
+    socket.addEventListener('message', function (event) {
+        console.log('Message from server ', event.data);
+    });
+
+</script>
+</html>

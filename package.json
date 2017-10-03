@@ -1,0 +1,28 @@
+{
+  "name": "jrpc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "webserver": "python -m SimpleHTTPServer 8000",
+    "dev": "babel index.js --watch --out-file dist/jrpc.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rjewson/jrpc.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rjewson/jrpc/issues"
+  },
+  "homepage": "https://github.com/rjewson/jrpc#readme",
+  "dependencies": {
+    "ws": "^3.2.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0"
+  }
+}
