@@ -1,12 +1,16 @@
 import { encode, decode } from "./Command.js";
 
 /*
+  RPC Format Spec:
+
+  Call = 
   {
     id: 0,
     method: "methondName",
     args: []
   }
 
+  Result = 
   {
     id: 0,
     result: *
@@ -50,6 +54,7 @@ export default class Client {
     });
   }
 
+  // Return a Defered/Promise 
   createRemoteCall(id) {
     let _resolve = null;
     let _reject = null;
@@ -63,6 +68,7 @@ export default class Client {
     return remotePromise;
   }
 
+  // Send the RPC and return the defered...
   sendRemoteCall(method, ...args) {
     const id = Math.random().toString();
     this.ws.send(encode({ id, method, args }));

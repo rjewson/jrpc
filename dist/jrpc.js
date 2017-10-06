@@ -9,6 +9,23 @@ var WebSocket$1 = _interopDefault(require('ws'));
 const encode = o => JSON.stringify(o);
 const decode = o => JSON.parse(o);
 
+/*
+  RPC Format Spec:
+
+  Call = 
+  {
+    id: 0,
+    method: "methondName",
+    args: []
+  }
+
+  Result = 
+  {
+    id: 0,
+    result: *
+  }
+*/
+
 class Client {
   constructor(url) {
     this.url = url;
@@ -46,6 +63,7 @@ class Client {
     });
   }
 
+  // Return a Defered/Promise 
   createRemoteCall(id) {
     let _resolve = null;
     let _reject = null;
@@ -59,6 +77,7 @@ class Client {
     return remotePromise;
   }
 
+  // Send the RPC and return the defered...
   sendRemoteCall(method, ...args) {
     const id = Math.random().toString();
     this.ws.send(encode({ id, method, args }));
