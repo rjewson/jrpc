@@ -4,21 +4,17 @@
   <Body>
   </Body>
   <script type="module">
-    import jrpc from '/index.js';
+    import Client from '/src/Client.js';
 
-    const socket = new WebSocket('ws://localhost:4000');
-
-    var rpc = jrpc(socket,{});
-
-    // Connection opened
-    socket.addEventListener('open', function (event) {
-        socket.send('Hello Server!');
-    });
-
-    // Listen for messages
-    socket.addEventListener('message', function (event) {
-        console.log('Message from server ', event.data);
-    });
+    var client = new Client('ws://localhost:4000');
+    console.log(client);
+    (async () => {
+      await client.open();
+      client.send();
+      console.log("1");
+      console.log(await client.whatsUp());
+      console.log("hi");
+    })();
 
 </script>
 </html>

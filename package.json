@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "webserver": "python -m SimpleHTTPServer 8000",
-    "dev": "babel index.js --watch --out-file dist/jrpc.js"
+    "dev": "rollup --config --watch"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,8 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0"
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "rollup": "^0.50.0"
   }
 }
