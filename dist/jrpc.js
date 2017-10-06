@@ -9,36 +9,16 @@ var WebSocket$1 = _interopDefault(require('ws'));
 const encode = o => JSON.stringify(o);
 const decode = o => JSON.parse(o);
 
-/*
-  {
-    id: 0,
-    method: "methondName",
-    args: []
-  }
-
-  {
-    id: 0,
-    result: *
-  }
-*/
-
 class Client {
   constructor(url) {
     this.url = url;
     this.proxy = new Proxy(this, {
       get: function(target, name, receiver) {
         const targetProp = target[name];
-        // debugger;
         if (targetProp) {
           return targetProp.bind(target);
         } else {
-          return (...args) => {
-            // const [method, ...methodParams] = args;
-            return target.sendRemoteCall(name, ...args);
-            // return new Promise(resolve => {
-            //   resolve("ok");
-            // });
-          };
+          return (...args) => target.sendRemoteCall(name, ...args);
         }
       }
     });
@@ -99,8 +79,10 @@ class Server {
       this.wss.on("connection", ws => {
         console.log("connected");
         ws.on("message", data => {
-          const {id} = decode(data);
-          ws.send( encode({ id, result:"ok" }));
+          const request = decode(data);
+          console.log(request);
+          const { id } = request;
+          ws.send(encode({ id, result: "ok" }));
         });
       });
     });

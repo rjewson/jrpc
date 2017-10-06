@@ -1,5 +1,4 @@
 import { encode, decode } from "./Command.js";
-import rpcProxy from "./RPCProxy.js";
 
 /*
   {
@@ -20,17 +19,10 @@ export default class Client {
     this.proxy = new Proxy(this, {
       get: function(target, name, receiver) {
         const targetProp = target[name];
-        // debugger;
         if (targetProp) {
           return targetProp.bind(target);
         } else {
-          return (...args) => {
-            // const [method, ...methodParams] = args;
-            return target.sendRemoteCall(name, ...args);
-            // return new Promise(resolve => {
-            //   resolve("ok");
-            // });
-          };
+          return (...args) => target.sendRemoteCall(name, ...args);
         }
       }
     });

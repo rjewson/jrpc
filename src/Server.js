@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import {encode, decode} from "./Command";
+import { encode, decode } from "./Command";
 
 export default class Server {
   constructor() {}
@@ -14,8 +14,10 @@ export default class Server {
       this.wss.on("connection", ws => {
         console.log("connected");
         ws.on("message", data => {
-          const {id} = decode(data);
-          ws.send( encode({ id, result:"ok" }));
+          const request = decode(data);
+          console.log(request);
+          const { id } = request;
+          ws.send(encode({ id, result: "ok" }));
         });
       });
     });
