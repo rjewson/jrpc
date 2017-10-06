@@ -1,10 +1,39 @@
 import { encode, decode } from "./Command.js";
 import rpcProxy from "./RPCProxy.js";
 
+/*
+  {
+    id: 0,
+    method: "methondName",
+    args: []
+  }
+
+  {
+    id: 0,
+    result: *
+  }
+*/
+
 export default class Client {
   constructor(url) {
     this.url = url;
-    this.proxy = rpcProxy(this);
+    this.proxy = new Proxy(this, {
+      get: function(target, name, receiver) {
+        const targetProp = target[name];
+        // debugger;
+        if (targetProp) {
+          return targetProp.bind(target);
+        } else {
+          return (...args) => {
+            // const [method, ...methodParams] = args;
+            return target.sendRemoteCall(name, ...args);
+            // return new Promise(resolve => {
+            //   resolve("ok");
+            // });
+          };
+        }
+      }
+    });
     this.remoteCalls = new Map();
     return this.proxy;
   }
@@ -22,23 +51,29 @@ export default class Client {
       this.ws.onclose = event => {
         console.log("closed");
       };
+      this.ws.onmessage = event => {
+        const { id, result } = decode(event.data);
+        this.remoteCalls.get(id).resolve(result);
+      };
     });
   }
 
   createRemoteCall(id) {
     let _resolve = null;
     let _reject = null;
-    let remotePromise = new Promise( (resolve,reject) => {
+    let remotePromise = new Promise((resolve, reject) => {
       _resolve = resolve;
       _reject = reject;
-    } );
+    });
     remotePromise.resolve = (...args) => _resolve(...args);
     remotePromise.reject = (...args) => _reject(...args);
-    remoteCalls.set(id,remotePromise);
+    this.remoteCalls.set(id, remotePromise);
+    return remotePromise;
   }
 
-  send() {
-    debugger;
-    this.ws.send(encode({ data: "ping" }));
+  sendRemoteCall(method, ...args) {
+    const id = Math.random().toString();
+    this.ws.send(encode({ id, method, args }));
+    return this.createRemoteCall(id);
   }
 }

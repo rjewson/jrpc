@@ -14,8 +14,8 @@ export default class Server {
       this.wss.on("connection", ws => {
         console.log("connected");
         ws.on("message", data => {
-          console.log(decode(data));
-          ws.send( encode({ data: "ping" }));
+          const {id} = decode(data);
+          ws.send( encode({ id, result:"ok" }));
         });
       });
     });
