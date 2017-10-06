@@ -1,4 +1,4 @@
-import { encode, decode } from "./Command.js";
+import { decode, encode } from "./Command.js";
 
 /*
   RPC Format Spec:
@@ -17,45 +17,52 @@ import { encode, decode } from "./Command.js";
   }
 */
 
+export const open = Symbol();
+const props = Symbol();
+const createRemoteCall = Symbol();
+const sendRemoteCall = Symbol();
+
 export default class Client {
   constructor(url) {
-    this.url = url;
-    this.proxy = new Proxy(this, {
-      get: function(target, name, receiver) {
+    this[props] = {
+      url,
+      ws : null,
+      remoteCalls: new Map()
+    };
+    return new Proxy(this, {
+      get: function (target, name, receiver) {
         const targetProp = target[name];
         if (targetProp) {
           return targetProp.bind(target);
         } else {
-          return (...args) => target.sendRemoteCall(name, ...args);
+          return (...args) => target[sendRemoteCall](name, ...args);
         }
       }
     });
-    this.remoteCalls = new Map();
-    return this.proxy;
   }
 
-  open() {
+  [open]() {
     return new Promise((resolve, reject) => {
-      this.ws = new WebSocket(this.url);
-      this.ws.binaryType = "arraybuffer";
-      this.ws.onopen = event => {
+      let ws = this[props].ws = new WebSocket(this[props].url);
+      ws.binaryType = "arraybuffer";
+      ws.onopen = event => {
         resolve(this);
       };
-      this.ws.onerror = event => {
+      ws.onerror = event => {
         reject();
       };
-      this.ws.onclose = event => {
+      ws.onclose = event => {
         console.log("closed");
       };
-      this.ws.onmessage = event => {
+      ws.onmessage = event => {
         const { id, result } = decode(event.data);
-        this.remoteCalls.get(id).resolve(result);
+        this[props].remoteCalls.get(id).resolve(result);
       };
     });
   }
 
   // Return a Defered/Promise 
-  createRemoteCall(id) {
+  [createRemoteCall](id) {
     let _resolve = null;
     let _reject = null;
     let remotePromise = new Promise((resolve, reject) => {
@@ -64,14 +71,14 @@ export default class Client {
     });
     remotePromise.resolve = (...args) => _resolve(...args);
     remotePromise.reject = (...args) => _reject(...args);
-    this.remoteCalls.set(id, remotePromise);
+    this[props].remoteCalls.set(id, remotePromise);
     return remotePromise;
   }
 
   // Send the RPC and return the defered...
-  sendRemoteCall(method, ...args) {
+  [sendRemoteCall](method, ...args) {
     const id = Math.random().toString();
-    this.ws.send(encode({ id, method, args }));
-    return this.createRemoteCall(id);
+    this[props].ws.send(encode({ id, method, args }));
+    return this[createRemoteCall](id);
   }
 }
