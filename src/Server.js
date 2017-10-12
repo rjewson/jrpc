@@ -1,8 +1,16 @@
 import WebSocket from "ws";
 import { encode, decode } from "./Command";
 
+// const RPC = (taget, key, descriptor) => {
+//   target.remoteCalls = key;
+//   console.log("hi");
+//   return descriptor;
+// }
+
 export default class Server {
-  constructor() {}
+  constructor() {
+    this.remoteCalls = new Map();
+  }
   open() {
     return new Promise(resolve => {
       this.wss = new WebSocket.Server(
@@ -22,4 +30,10 @@ export default class Server {
       });
     });
   }
+
+  // @RPC
+  // myMethod() {
+
+  // }
+
 }
